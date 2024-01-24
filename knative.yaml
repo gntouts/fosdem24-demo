@@ -4,11 +4,12 @@ metadata:
   name: http-reply-knative
   namespace: fosdem24
 spec:
+  runtimeClassName: urunc
   template:
     spec:
       runtimeClassName: urunc
-      containers:
-        - image: harbor.nbfc.io/nubificus/httpreply-unikraft:latest
-          env:
-            - name: TARGET
-              value: "Go Sample v1"
+    containers:
+      - image: harbor.nbfc.io/nubificus/httpreply-unikraft:latest
+        env:
+          - name: TARGET
+            value: "Go Sample v1"

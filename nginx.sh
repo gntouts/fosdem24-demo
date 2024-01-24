@@ -1,23 +1,54 @@
 #!/bin/bash
 
+# prepare host
+sudo nerdctl rm -f $(sudo nerdctl ps -a -q) > /dev/null 2>&1
+sudo nerdctl image rm harbor.nbfc.io/nubificus/urunc/nginx-fc-unik:latest > /dev/null 2>&1
+
 NO_WAIT=false
 TYPE_SPEED=50
-DEMO_PROMPT="${GREEN}➜ ${CYAN}\W $ ${COLOR_RESET}"
+
 clear
 . /home/gntouts/demo-magic.sh
+DEMO_PROMPT="${GREEN}gntouts@fosdem24➜${CYAN}\W ${COLOR_RESET}"
 
-pe "sudo nerdctl pull --snapshotter devmapper harbor.nbfc.io/nubificus/urunc/nginx-fc-unik:latest"
-pei "CONTAINER_ID=$(sudo nerdctl run -d --snapshotter devmapper --runtime io.containerd.urunc.v2 harbor.nbfc.io/nubificus/urunc/nginx-fc-unik:latest unikernel | tee /dev/tty)"
-pei "NGINX_IP=$(sudo nerdctl inspect $CONTAINER_ID | jq .[]?.NetworkSettings.IPAddress | tee /dev/tty)"
-pei "CLEAN_NGINX_IP=${NGINX_IP//\"}"
-pei "curl $CLEAN_NGINX_IP"
-#
-# custom prompt
-#
-# see http://www.tldp.org/HOWTO/Bash-Prompt-HOWTO/bash-prompt-escape-sequences.html for escape sequences
-#
+#pei "neofetch"
+#PROMPT_TIMEOUT=2
+#wait
 
-# text color
-# DEMO_CMD_COLOR=$BLACK
+pei "sudo nerdctl ps -a"
+PROMPT_TIMEOUT=2
+wait
 
-# hide the evidence
+pei "sudo nerdctl pull harbor.nbfc.io/nubificus/urunc/nginx-fc-unik:latest"
+PROMPT_TIMEOUT=3
+wait
+sleep 1
+pei "sudo nerdctl run -d --runtime io.containerd.urunc.v2 harbor.nbfc.io/nubificus/urunc/nginx-fc-unik:latest unikernel"
+CONTAINER_ID=$(sudo nerdctl ps -a -q)
+PROMPT_TIMEOUT=4
+wait
+
+pei "sudo nerdctl ps -a"
+PROMPT_TIMEOUT=4
+wait
+
+pei "sudo nerdctl inspect $CONTAINER_ID | jq .[]?.NetworkSettings.IPAddress"
+NGINX_IP=$(sudo nerdctl inspect $CONTAINER_ID | jq .[]?.NetworkSettings.IPAddress)
+NGINX_IP=${NGINX_IP//\"}
+PROMPT_TIMEOUT=3
+wait
+
+pei "curl $NGINX_IP"
+echo "\n"
+PROMPT_TIMEOUT=5
+wait
+sleep 1
+
+pei "ps -ef | grep firecracker"
+PROMPT_TIMEOUT=4
+wait
+
+pei "ps -ef | grep urunc"
+PROMPT_TIMEOUT=4
+wait
+exit
